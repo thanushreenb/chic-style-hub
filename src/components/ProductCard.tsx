@@ -1,4 +1,4 @@
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Zap } from "lucide-react";
 import type { Product } from "@/lib/products";
 import { useCart, useWishlist } from "@/lib/store";
 import { toast } from "sonner";
@@ -37,10 +37,20 @@ export function ProductCard({ product }: { product: Product }) {
         >
           <ShoppingBag className="w-4 h-4" /> Add to Bag
         </button>
+        {product.fastDelivery && (
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1 bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 rounded-full shadow">
+            <Zap className="w-3 h-3 fill-black" /> 10 MIN
+          </span>
+        )}
       </div>
       <div className="p-3 space-y-1">
         <h3 className="font-bold text-sm truncate">{product.brand}</h3>
         <p className="text-xs text-muted-foreground truncate">{product.name}</p>
+        {product.fastDelivery && (
+          <p className="text-[11px] font-semibold text-yellow-600 flex items-center gap-1">
+            <Zap className="w-3 h-3" /> Delivery in 10 minutes
+          </p>
+        )}
         <div className="flex items-baseline gap-2 pt-1">
           <span className="font-bold text-sm">₹{product.price}</span>
           <span className="text-xs text-muted-foreground line-through">₹{product.mrp}</span>
