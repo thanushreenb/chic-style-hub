@@ -20,7 +20,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4 md:gap-8">
         <Link to="/" className="flex items-center gap-1 shrink-0">
           <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
-            Myntrah
+            My Store
           </span>
         </Link>
 

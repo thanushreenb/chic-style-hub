@@ -45,7 +45,7 @@ function Login() {
 
       <div className="flex items-center justify-center p-6 bg-background">
         <div className="w-full max-w-md">
-          <div className="text-3xl font-extrabold bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent mb-1">Myntrah</div>
+          <div className="text-3xl font-extrabold bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent mb-1">My Store</div>
           <h2 className="text-2xl font-bold mb-1">{mode === "login" ? "Welcome back" : "Create your account"}</h2>
           <p className="text-sm text-muted-foreground mb-8">{mode === "login" ? "Login to continue shopping" : "Sign up — it only takes a minute"}</p>
 

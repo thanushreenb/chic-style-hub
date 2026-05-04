@@ -60,7 +60,7 @@ function Home() {
       </section>
 
       <footer className="bg-card border-t border-border mt-10 py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Myntrah. Built with ❤️ for fashion lovers.
+        © {new Date().getFullYear()} My Store. Built with ❤️ for fashion lovers.
       </footer>
     </div>
   );
