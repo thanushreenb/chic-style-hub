@@ -59,7 +59,8 @@ export function useCart() {
   const setQty = (id: string, qty: number) =>
     setCart((prev) => (qty <= 0 ? prev.filter((i) => i.id !== id) : prev.map((i) => (i.id === id ? { ...i, qty } : i))));
   const count = cart.reduce((s, i) => s + i.qty, 0);
-  return { cart, add, remove, setQty, count };
+  const clear = () => setCart([]);
+  return { cart, add, remove, setQty, count, clear };
 }
 
 export function useWishlist() {
