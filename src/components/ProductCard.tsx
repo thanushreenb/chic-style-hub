@@ -37,7 +37,6 @@ export function ProductCard({ product }: { product: Product }) {
         >
           <ShoppingBag className="w-4 h-4" /> Add to Bag
         </button>
-      </div>
         {product.fastDelivery && (
           <span className="absolute top-3 left-3 inline-flex items-center gap-1 bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 rounded-full shadow">
             <Zap className="w-3 h-3 fill-black" /> 10 MIN
