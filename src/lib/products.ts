@@ -25,6 +25,18 @@ export const PRODUCTS: Product[] = [
   { id: "m7", name: "Slim Fit Blue Jeans", brand: "Levis", price: 1799, mrp: 3499, image: img("photo-1542272604-787c3835535d"), category: "men", subcategory: "Jeans" },
   { id: "m8", name: "Distressed Skinny Jeans", brand: "Pepe", price: 1599, mrp: 2999, image: img("photo-1604176354204-9268737828e4"), category: "men", subcategory: "Jeans" },
   { id: "m9", name: "Black Tapered Jeans", brand: "Wrangler", price: 1399, mrp: 2799, image: img("photo-1582552938357-32b906df40cb"), category: "men", subcategory: "Jeans" },
+  // MEN - Jackets
+  { id: "m10", name: "Bomber Jacket", brand: "Tommy Hilfiger", price: 2499, mrp: 4999, image: img("photo-1591047139829-d91aecb6caea"), category: "men", subcategory: "Jackets" },
+  { id: "m11", name: "Denim Jacket", brand: "Levis", price: 2199, mrp: 4399, image: img("photo-1551537482-f2075a1d41f2"), category: "men", subcategory: "Jackets" },
+  { id: "m12", name: "Hooded Puffer Jacket", brand: "Adidas", price: 2999, mrp: 5999, image: img("photo-1544022613-e87ca75a784a"), category: "men", subcategory: "Jackets" },
+  // MEN - Footwear
+  { id: "m13", name: "Running Sneakers", brand: "Nike", price: 3499, mrp: 6999, image: img("photo-1542291026-7eec264c27ff"), category: "men", subcategory: "Footwear" },
+  { id: "m14", name: "Casual Loafers", brand: "Clarks", price: 2799, mrp: 5499, image: img("photo-1533867617858-e7b97e060509"), category: "men", subcategory: "Footwear" },
+  { id: "m15", name: "Leather Formal Shoes", brand: "Hush Puppies", price: 2999, mrp: 5999, image: img("photo-1614252369475-531eba835eb1"), category: "men", subcategory: "Footwear" },
+  // MEN - Accessories
+  { id: "m16", name: "Leather Wallet", brand: "Wildhorn", price: 599, mrp: 1499, image: img("photo-1627123424574-724758594e93"), category: "men", subcategory: "Accessories" },
+  { id: "m17", name: "Aviator Sunglasses", brand: "Ray-Ban", price: 3999, mrp: 7999, image: img("photo-1572635196237-14b3f281503f"), category: "men", subcategory: "Accessories" },
+  { id: "m18", name: "Analog Watch", brand: "Fossil", price: 4999, mrp: 9999, image: img("photo-1524592094714-0f0654e20314"), category: "men", subcategory: "Accessories" },
 
   // WOMEN - Dresses
   { id: "w1", name: "Floral Maxi Dress", brand: "Zara", price: 1899, mrp: 3499, image: img("photo-1572804013309-59a88b7e92f1"), category: "women", subcategory: "Dresses" },
@@ -51,10 +63,22 @@ export const PRODUCTS: Product[] = [
   { id: "k7", name: "Velcro Sneakers", brand: "Nike Kids", price: 1499, mrp: 2999, image: img("photo-1514989940723-e8e51635b782"), category: "kids", subcategory: "Footwear" },
   { id: "k8", name: "Rainbow Sandals", brand: "Crocs", price: 999, mrp: 1799, image: img("photo-1551107696-a4b0c5a0d9a2"), category: "kids", subcategory: "Footwear" },
   { id: "k9", name: "Light-Up School Shoes", brand: "Bata", price: 1199, mrp: 2299, image: img("photo-1576672843344-f01907a9d40c"), category: "kids", subcategory: "Footwear" },
+  // KIDS - Accessories
+  { id: "k10", name: "Cartoon Backpack", brand: "Skybags", price: 899, mrp: 1799, image: img("photo-1553062407-98eeb64c6a62"), category: "kids", subcategory: "Accessories" },
+  { id: "k11", name: "Kids Sunglasses", brand: "Babyhug", price: 399, mrp: 799, image: img("photo-1577803645773-f96470509666"), category: "kids", subcategory: "Accessories" },
+  { id: "k12", name: "Animal Cap", brand: "H&M Kids", price: 499, mrp: 999, image: img("photo-1519415943484-9fa1873496d4"), category: "kids", subcategory: "Accessories" },
+  // KIDS - Toys (more)
+  { id: "k13", name: "Lego Building Set", brand: "Lego", price: 1999, mrp: 3499, image: img("photo-1587654780291-39c9404d746b"), category: "kids", subcategory: "Toys" },
+  { id: "k14", name: "Doll House Playset", brand: "Barbie", price: 2499, mrp: 4999, image: img("photo-1558877385-8c1f1be21abb"), category: "kids", subcategory: "Toys" },
+  { id: "k15", name: "Puzzle Game Board", brand: "Funskool", price: 599, mrp: 1199, image: img("photo-1611604548018-d56bbd85d681"), category: "kids", subcategory: "Toys" },
+  // KIDS - Clothing (more)
+  { id: "k16", name: "Party Wear Dress", brand: "Carter's", price: 1299, mrp: 2599, image: img("photo-1471286174890-9c112ffca5b4"), category: "kids", subcategory: "Clothing" },
+  { id: "k17", name: "Denim Overalls", brand: "Mothercare", price: 1099, mrp: 2199, image: img("photo-1503944583220-79d8926ad5e2"), category: "kids", subcategory: "Clothing" },
+  { id: "k18", name: "Winter Sweater", brand: "Gap Kids", price: 899, mrp: 1799, image: img("photo-1545194445-dddb8f4487c6"), category: "kids", subcategory: "Clothing" },
 ];
 
 export const CATEGORIES = {
-  men: { label: "Men", subcategories: ["Shirts", "T-Shirts", "Jeans"] },
+  men: { label: "Men", subcategories: ["Shirts", "T-Shirts", "Jeans", "Jackets", "Footwear", "Accessories"] },
   women: { label: "Women", subcategories: ["Dresses", "Tops", "Sarees"] },
-  kids: { label: "Kids", subcategories: ["Toys", "Clothing", "Footwear"] },
+  kids: { label: "Kids", subcategories: ["Toys", "Clothing", "Footwear", "Accessories"] },
 } as const;
