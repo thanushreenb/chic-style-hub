@@ -45,22 +45,50 @@ export function useLocalState<T>(key: string, initial: T): [T, (v: T | ((prev: T
   return [state, update];
 }
 
-export type CartItem = { id: string; qty: number };
+export type CartItem = { id: string; qty: number; size?: string };
+
+const keyOf = (i: { id: string; size?: string }) => `${i.id}__${i.size ?? ""}`;
 
 export function useCart() {
   const [cart, setCart] = useLocalState<CartItem[]>("myntra:cart", []);
-  const add = (id: string) =>
+  const add = (id: string, size?: string) =>
     setCart((prev) => {
-      const found = prev.find((i) => i.id === id);
-      if (found) return prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i));
-      return [...prev, { id, qty: 1 }];
+      const k = keyOf({ id, size });
+      const found = prev.find((i) => keyOf(i) === k);
+      if (found) return prev.map((i) => (keyOf(i) === k ? { ...i, qty: i.qty + 1 } : i));
+      return [...prev, { id, qty: 1, size }];
     });
-  const remove = (id: string) => setCart((prev) => prev.filter((i) => i.id !== id));
-  const setQty = (id: string, qty: number) =>
-    setCart((prev) => (qty <= 0 ? prev.filter((i) => i.id !== id) : prev.map((i) => (i.id === id ? { ...i, qty } : i))));
+  const remove = (id: string, size?: string) =>
+    setCart((prev) => prev.filter((i) => keyOf(i) !== keyOf({ id, size })));
+  const setQty = (id: string, qty: number, size?: string) =>
+    setCart((prev) =>
+      qty <= 0
+        ? prev.filter((i) => keyOf(i) !== keyOf({ id, size }))
+        : prev.map((i) => (keyOf(i) === keyOf({ id, size }) ? { ...i, qty } : i))
+    );
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const clear = () => setCart([]);
   return { cart, add, remove, setQty, count, clear };
+}
+
+const CLOTHING_SUBS = new Set([
+  "Shirts", "T-Shirts", "Jeans", "Jackets",
+  "Dresses", "Tops", "Sarees", "Kurtas",
+  "Clothing", "Sportswear",
+]);
+export const hasSizes = (subcategory: string) => CLOTHING_SUBS.has(subcategory);
+export const SIZES = ["S", "M", "L", "XL"] as const;
+
+export function useAdmin() {
+  const [admin, setAdmin] = useLocalState<boolean>("myntra:admin", false);
+  return {
+    admin,
+    loginAdmin: (u: string, p: string) => {
+      if (u === "admin" && p === "admin123") { setAdmin(true); return true; }
+      return false;
+    },
+    logoutAdmin: () => setAdmin(false),
+  };
 }
 
 export function useWishlist() {
