@@ -48,22 +48,23 @@ function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           <h1 className="text-2xl font-bold">My Bag ({items.length})</h1>
           {items.map((i) => i.product && (
-            <div key={i.id} className="flex gap-4 bg-card border border-border rounded-lg p-3">
+            <div key={`${i.id}-${i.size ?? ""}`} className="flex gap-4 bg-card border border-border rounded-lg p-3">
               <img src={i.product.image} alt={i.product.name} className="w-24 h-32 object-cover rounded-md" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold">{i.product.brand}</h3>
                 <p className="text-sm text-muted-foreground truncate">{i.product.name}</p>
+                {i.size && <p className="text-xs mt-1">Size: <span className="font-semibold">{i.size}</span></p>}
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="font-bold">₹{i.product.price}</span>
                   <span className="text-xs text-muted-foreground line-through">₹{i.product.mrp}</span>
                 </div>
                 <div className="flex items-center gap-3 mt-3">
                   <div className="flex items-center border border-border rounded-md">
-                    <button onClick={() => setQty(i.id, i.qty - 1)} className="px-2 py-1 hover:bg-muted"><Minus className="w-3 h-3" /></button>
+                    <button onClick={() => setQty(i.id, i.qty - 1, i.size)} className="px-2 py-1 hover:bg-muted"><Minus className="w-3 h-3" /></button>
                     <span className="px-3 text-sm font-semibold">{i.qty}</span>
-                    <button onClick={() => setQty(i.id, i.qty + 1)} className="px-2 py-1 hover:bg-muted"><Plus className="w-3 h-3" /></button>
+                    <button onClick={() => setQty(i.id, i.qty + 1, i.size)} className="px-2 py-1 hover:bg-muted"><Plus className="w-3 h-3" /></button>
                   </div>
-                  <button onClick={() => remove(i.id)} className="text-sm text-muted-foreground hover:text-destructive flex items-center gap-1">
+                  <button onClick={() => remove(i.id, i.size)} className="text-sm text-muted-foreground hover:text-destructive flex items-center gap-1">
                     <Trash2 className="w-4 h-4" /> Remove
                   </button>
                 </div>
