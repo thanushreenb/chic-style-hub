@@ -28,6 +28,7 @@ export function Navbar() {
           <Link to="/category/$cat" params={{ cat: "men" }} className="hover:text-primary transition-colors py-2">Men</Link>
           <Link to="/category/$cat" params={{ cat: "women" }} className="hover:text-primary transition-colors py-2">Women</Link>
           <Link to="/category/$cat" params={{ cat: "kids" }} className="hover:text-primary transition-colors py-2">Kids</Link>
+          <Link to="/admin/login" className="text-primary hover:opacity-80 transition-colors py-2">Admin</Link>
         </nav>
 
         <form onSubmit={onSearch} className="flex-1 max-w-xl relative">
