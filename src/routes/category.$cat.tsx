@@ -19,7 +19,7 @@ export const Route = createFileRoute("/category/$cat")({
 
 function CategoryPage() {
   const { cat } = Route.useLoaderData();
-  const meta = CATEGORIES[cat];
+  const meta = CATEGORIES[cat as keyof typeof CATEGORIES];
   const [active, setActive] = useState<string>("All");
 
   const items = PRODUCTS.filter((p) => p.category === cat && (active === "All" || p.subcategory === active));
