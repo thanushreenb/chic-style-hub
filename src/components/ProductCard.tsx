@@ -1,6 +1,7 @@
 import { Heart, ShoppingBag, Zap } from "lucide-react";
+import { useState } from "react";
 import type { Product } from "@/lib/products";
-import { useCart, useWishlist } from "@/lib/store";
+import { useCart, useWishlist, hasSizes, SIZES } from "@/lib/store";
 import { toast } from "sonner";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -8,6 +9,17 @@ export function ProductCard({ product }: { product: Product }) {
   const { has, toggle } = useWishlist();
   const wished = has(product.id);
   const off = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+  const needsSize = hasSizes(product.subcategory);
+  const [size, setSize] = useState<string | null>(null);
+
+  const onAdd = () => {
+    if (needsSize && !size) {
+      toast.error("Please select a size");
+      return;
+    }
+    add(product.id, size ?? undefined);
+    toast.success(`Added to bag${size ? ` (Size ${size})` : ""}`);
+  };
 
   return (
     <div className="group bg-card rounded-lg overflow-hidden border border-border/50 transition-all duration-300 hover:shadow-[var(--shadow-hover)] hover:-translate-y-1">
@@ -29,10 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
           <Heart className={`w-4 h-4 ${wished ? "fill-primary text-primary" : "text-foreground"}`} />
         </button>
         <button
-          onClick={() => {
-            add(product.id);
-            toast.success("Added to bag");
-          }}
+          onClick={onAdd}
           className="absolute bottom-0 inset-x-0 bg-primary text-primary-foreground text-sm font-semibold py-2.5 translate-y-full group-hover:translate-y-0 transition-transform flex items-center justify-center gap-2"
         >
           <ShoppingBag className="w-4 h-4" /> Add to Bag
@@ -56,6 +65,23 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="text-xs text-muted-foreground line-through">₹{product.mrp}</span>
           <span className="text-xs font-semibold" style={{ color: "var(--discount)" }}>({off}% OFF)</span>
         </div>
+        {needsSize && (
+          <div className="flex items-center gap-1 pt-2">
+            {SIZES.map((s) => (
+              <button
+                key={s}
+                onClick={(e) => { e.stopPropagation(); setSize(s); }}
+                className={`text-[11px] font-semibold w-7 h-7 rounded-full border transition ${
+                  size === s
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background border-border hover:border-primary"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
