@@ -14,7 +14,9 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as CategoryCatRouteImport } from './routes/category.$cat'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -41,9 +43,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoryCatRoute = CategoryCatRouteImport.update({
   id: '/category/$cat',
   path: '/category/$cat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -53,7 +65,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/login': typeof AdminLoginRoute
   '/category/$cat': typeof CategoryCatRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +75,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/login': typeof AdminLoginRoute
   '/category/$cat': typeof CategoryCatRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +86,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/login': typeof AdminLoginRoute
   '/category/$cat': typeof CategoryCatRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,9 +98,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/search'
     | '/wishlist'
+    | '/admin/login'
     | '/category/$cat'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/login' | '/search' | '/wishlist' | '/category/$cat'
+  to:
+    | '/'
+    | '/cart'
+    | '/login'
+    | '/search'
+    | '/wishlist'
+    | '/admin/login'
+    | '/category/$cat'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -90,7 +118,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/search'
     | '/wishlist'
+    | '/admin/login'
     | '/category/$cat'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -99,7 +129,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SearchRoute: typeof SearchRoute
   WishlistRoute: typeof WishlistRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   CategoryCatRoute: typeof CategoryCatRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -139,11 +171,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/category/$cat': {
       id: '/category/$cat'
       path: '/category/$cat'
       fullPath: '/category/$cat'
       preLoaderRoute: typeof CategoryCatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -155,7 +201,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SearchRoute: SearchRoute,
   WishlistRoute: WishlistRoute,
+  AdminLoginRoute: AdminLoginRoute,
   CategoryCatRoute: CategoryCatRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
