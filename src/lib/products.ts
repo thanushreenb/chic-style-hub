@@ -1,14 +1,6 @@
-export type Product = {
-  id: string;
-  name: string;
-  price: number;
-  mrp: number;
-  brand: string;
-  image: string;
-  category: "men" | "women" | "kids";
-  subcategory: string;
-  fastDelivery?: boolean;
-};
+import { useProducts } from "./store";
+
+export { type Product } from "./store";
 
 const img = (seed: string) =>
   `https://images.unsplash.com/${seed}?w=600&h=800&fit=crop&auto=format`;
@@ -207,3 +199,9 @@ export const CATEGORIES = {
   women: { label: "Women", subcategories: ["Dresses", "Tops", "Sarees", "Kurtas", "Footwear", "Accessories"] },
   kids: { label: "Kids", subcategories: ["Toys", "Clothing", "Footwear", "Accessories", "Sportswear"] },
 } as const;
+
+// Hook to get all products including custom ones
+export function useAllProducts() {
+  const { customProducts } = useProducts();
+  return [...PRODUCTS, ...customProducts];
+}

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { useAuth, useAdmin } from "@/lib/store";
+import { useAuth, useAdmin, useUsers } from "@/lib/store";
 import { Shield, User } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -8,7 +8,8 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
-  const { user, login } = useAuth();
+  const { user, login, signup } = useAuth();
+  const { findUserByEmail } = useUsers();
   const { admin, loginAdmin } = useAdmin();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"user" | "admin">("user");
@@ -16,22 +17,73 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [adminUser, setAdminUser] = useState("");
   const [adminPass, setAdminPass] = useState("");
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    if (admin) navigate({ to: "/admin" });
-    else if (user) navigate({ to: "/" });
+    if (user) navigate({ to: "/" });
+    else if (admin) navigate({ to: "/admin" });
   }, [user, admin, navigate]);
 
   const submitUser = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes("@") || password.length < 4) {
-      setErr("Enter a valid email and a password of 4+ characters");
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = findUserByEmail(normalizedEmail);
+
+    if (mode === "login") {
+      if (!normalizedEmail || password.length < 4) {
+        setErr("Email and password are required");
+        return;
+      }
+
+      if (!existing) {
+        setMode("signup");
+        setErr("No account found. Please sign up to continue.");
+        return;
+      }
+
+      const auth = login(normalizedEmail, password);
+      if (!auth) {
+        setErr("Wrong password. Please try again.");
+        return;
+      }
+
+      navigate({ to: "/" });
       return;
     }
-    login(mode === "signup" ? name || email.split("@")[0] : email.split("@")[0]);
+
+    if (existing) {
+      setMode("login");
+      setErr("Account already exists. Please login.");
+      return;
+    }
+
+    if (!name.trim() || !normalizedEmail.includes("@") || password.length < 4 || !phone.trim() || !address.trim()) {
+      setErr("Please fill in all required fields");
+      return;
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      setErr("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    const registered = signup({
+      name: name.trim(),
+      email: normalizedEmail,
+      password,
+      phone: phone.trim(),
+      address: address.trim(),
+    });
+
+    if (!registered) {
+      setMode("login");
+      setErr("Account already exists. Please login.");
+      return;
+    }
+
     navigate({ to: "/" });
   };
 
@@ -88,10 +140,20 @@ function Login() {
 
               <form onSubmit={submitUser} className="space-y-4">
                 {mode === "signup" && (
-                  <div>
-                    <label className="text-xs font-semibold uppercase">Name</label>
-                    <input value={name} onChange={(e) => setName(e.target.value)} className="w-full mt-1 px-4 py-3 border border-border rounded-md outline-none focus:border-primary transition" placeholder="Your name" />
-                  </div>
+                  <>
+                    <div>
+                      <label className="text-xs font-semibold uppercase">Name</label>
+                      <input value={name} onChange={(e) => setName(e.target.value)} className="w-full mt-1 px-4 py-3 border border-border rounded-md outline-none focus:border-primary transition" placeholder="Your name" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold uppercase">Phone</label>
+                      <input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className="w-full mt-1 px-4 py-3 border border-border rounded-md outline-none focus:border-primary transition" placeholder="10-digit phone number" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold uppercase">Address</label>
+                      <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className="w-full mt-1 px-4 py-3 border border-border rounded-md outline-none focus:border-primary transition resize-none" placeholder="Your full address" />
+                    </div>
+                  </>
                 )}
                 <div>
                   <label className="text-xs font-semibold uppercase">Email</label>

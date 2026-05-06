@@ -43,10 +43,16 @@ export function Navbar() {
 
         <div className="flex items-center gap-1 md:gap-4 text-xs font-semibold">
           {user ? (
-            <button onClick={logout} className="hidden sm:flex flex-col items-center px-2 hover:text-primary transition" title={`Logout ${user}`}>
-              <LogOut className="w-5 h-5" />
-              <span className="mt-0.5">Logout</span>
-            </button>
+            <>
+              <Link to="/profile" className="hidden sm:flex flex-col items-center px-2 hover:text-primary transition" title="Profile">
+                <User className="w-5 h-5" />
+                <span className="mt-0.5">Profile</span>
+              </Link>
+              <button onClick={logout} className="hidden sm:flex flex-col items-center px-2 hover:text-primary transition" title={`Logout ${user.name || user}`}>
+                <LogOut className="w-5 h-5" />
+                <span className="mt-0.5">Logout</span>
+              </button>
+            </>
           ) : (
             <Link to="/login" className="hidden sm:flex flex-col items-center px-2 hover:text-primary transition">
               <User className="w-5 h-5" />

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -44,6 +44,48 @@ export function useLocalState<T>(key: string, initial: T): [T, (v: T | ((prev: T
 
   return [state, update];
 }
+
+export type Product = {
+  id: string;
+  name: string;
+  price: number;
+  mrp: number;
+  brand: string;
+  image: string;
+  category: "men" | "women" | "kids";
+  subcategory: string;
+  fastDelivery?: boolean;
+};
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  createdAt: string;
+};
+
+export type OrderItem = { id: string; qty: number; size?: string };
+export type OrderStatus = "placed" | "confirmed" | "shipped" | "delivered" | "cancelled";
+
+export type Order = {
+  id: string;
+  userId: string;
+  items: OrderItem[];
+  total: number;
+  payment: string;
+  status: OrderStatus;
+  shippingAddress: {
+    name: string;
+    address: string;
+    phone: string;
+    email: string;
+    altPhone?: string;
+  };
+  createdAt: string;
+};
 
 export type CartItem = { id: string; qty: number; size?: string };
 
@@ -99,9 +141,136 @@ export function useWishlist() {
   return { list, toggle, has };
 }
 
+export function useUsers() {
+  const [rawUsers, setRawUsers] = useLocalState<User[]>("myntra:users", []);
+  const users = useMemo(() => {
+    const seen = new Set<string>();
+    return rawUsers.filter(user => {
+      const email = user.email.toLowerCase();
+      if (seen.has(email)) return false;
+      seen.add(email);
+      return true;
+    });
+  }, [rawUsers]);
+
+  const findUserByEmail = (email: string) => rawUsers.find((user) => user.email.toLowerCase() === email.toLowerCase());
+  const authenticateUser = (email: string, password: string) => {
+    const user = findUserByEmail(email);
+    return user && user.password === password ? user : null;
+  };
+
+  const addUser = (userData: Omit<User, "id" | "createdAt">) => {
+    const existing = findUserByEmail(userData.email);
+    if (existing) {
+      const updated = { ...existing, ...userData };
+      setRawUsers((prev) => prev.map((user) => (user.id === existing.id ? updated : user)));
+      return updated;
+    }
+    const newUser: User = {
+      ...userData,
+      id: `user_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    setRawUsers((prev) => [...prev, newUser]);
+    return newUser;
+  };
+
+  const updateUser = (updated: User) => {
+    setRawUsers((prev) => prev.map((user) => (user.id === updated.id ? updated : user)));
+  };
+
+  const deleteUser = (id: string) => {
+    setRawUsers((prev) => prev.filter((user) => user.id !== id));
+  };
+
+  return { users, findUserByEmail, authenticateUser, addUser, updateUser, deleteUser };
+}
+
 export function useAuth() {
-  const [user, setUser] = useLocalState<string | null>("myntra:user", null);
-  const login = (name: string) => setUser(name);
+  const { addUser, updateUser, findUserByEmail, authenticateUser } = useUsers();
+  const [user, setUser] = useLocalState<User | null>("myntra:user", null);
+
+  const login = (email: string, password: string) => {
+    const existing = authenticateUser(email, password);
+    if (!existing) return null;
+    setUser(existing);
+    return existing;
+  };
+
+  const signup = (userData: Omit<User, 'id' | 'createdAt'>) => {
+    const existing = findUserByEmail(userData.email);
+    if (existing) return null;
+    const nextUser = addUser(userData);
+    setUser(nextUser);
+    return nextUser;
+  };
+
   const logout = () => setUser(null);
-  return { user, login, logout };
+  const updateProfile = (updates: Partial<Omit<User, 'id' | 'createdAt'>>) => {
+    if (user) {
+      const nextUser = { ...user, ...updates };
+      setUser(nextUser);
+      updateUser(nextUser);
+    }
+  };
+  return { user, login, signup, logout, updateProfile };
+}
+
+export function useOrders() {
+  const [rawOrders, setRawOrders] = useLocalState<Order[]>("myntra:orders", []);
+  const orders = useMemo(() => {
+    const seen = new Set<string>();
+    return rawOrders.filter(order => {
+      if (seen.has(order.id)) return false;
+      seen.add(order.id);
+      return true;
+    });
+  }, [rawOrders]);
+
+  const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
+    const newOrder: Order = {
+      ...order,
+      id: "ORD" + Math.floor(100000 + Math.random() * 900000),
+      createdAt: new Date().toISOString(),
+    };
+    setRawOrders(prev => [...prev, newOrder]);
+    return newOrder.id;
+  };
+  const getUserOrders = (userId: string) => orders.filter(order => order.userId === userId);
+  const updateOrderStatus = (orderId: string, status: Order['status']) => {
+    setRawOrders(prev => prev.map(order =>
+      order.id === orderId ? { ...order, status } : order
+    ));
+  };
+  return { orders, addOrder, getUserOrders, updateOrderStatus };
+}
+
+export function useProducts() {
+  const [rawProducts, setRawProducts] = useLocalState<Product[]>("myntra:customProducts", []);
+  const customProducts = useMemo(() => {
+    const seen = new Set<string>();
+    return rawProducts.filter(product => {
+      if (seen.has(product.id)) return false;
+      seen.add(product.id);
+      return true;
+    });
+  }, [rawProducts]);
+
+  const addProduct = (product: Omit<Product, 'id'>) => {
+    const newProduct: Product = {
+      ...product,
+      id: `custom_${Date.now()}`,
+    };
+    setRawProducts(prev => [...prev, newProduct]);
+    return newProduct.id;
+  };
+  const updateProduct = (id: string, updates: Partial<Product>) => {
+    setRawProducts(prev => prev.map(product =>
+      product.id === id ? { ...product, ...updates } : product
+    ));
+  };
+  const deleteProduct = (id: string) => {
+    setRawProducts(prev => prev.filter(product => product.id !== id));
+  };
+  return { customProducts, addProduct, updateProduct, deleteProduct };
 }

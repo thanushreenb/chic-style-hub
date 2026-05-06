@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useCart } from "@/lib/store";
+import { useAuth, useOrders } from "@/lib/store";
 import { PRODUCTS } from "@/lib/products";
 import { Minus, Plus, Trash2, ShoppingBag, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { cart, setQty, remove, clear } = useCart();
+  const { user } = useAuth();
+  const { addOrder } = useOrders();
   const [showCheckout, setShowCheckout] = useState(false);
   const [placed, setPlaced] = useState<null | { id: string; payment: string }>(null);
   const items = cart
@@ -87,9 +90,18 @@ function CartPage() {
         <CheckoutModal
           total={subtotal}
           onClose={() => setShowCheckout(false)}
-          onPlace={(payment) => {
-            const id = "ORD" + Math.floor(100000 + Math.random() * 900000);
-            setPlaced({ id, payment });
+          onPlace={(payment, shippingAddress) => {
+            // Save order to user's order history
+            const orderId = addOrder({
+              userId: user!.id,
+              items: cart,
+              total: subtotal,
+              payment,
+              status: "placed",
+              shippingAddress,
+            });
+
+            setPlaced({ id: orderId, payment });
             clear();
             setShowCheckout(false);
             toast.success("Order placed successfully!");
@@ -113,7 +125,11 @@ function CartPage() {
   );
 }
 
-function CheckoutModal({ total, onClose, onPlace }: { total: number; onClose: () => void; onPlace: (payment: string) => void }) {
+function CheckoutModal({ total, onClose, onPlace }: { 
+  total: number; 
+  onClose: () => void; 
+  onPlace: (payment: string, shippingAddress: any) => void;
+}) {
   const [form, setForm] = useState({ name: "", address: "", phone: "", email: "", altPhone: "" });
   const [payment, setPayment] = useState<"COD" | "UPI">("COD");
   const [upiId, setUpiId] = useState("");
@@ -134,7 +150,14 @@ function CheckoutModal({ total, onClose, onPlace }: { total: number; onClose: ()
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    onPlace(payment === "UPI" ? `UPI (${upiId})` : "Cash on Delivery");
+    const shippingAddress = {
+      name: form.name,
+      address: form.address,
+      phone: form.phone,
+      email: form.email,
+      altPhone: form.altPhone || undefined,
+    };
+    onPlace(payment === "UPI" ? `UPI (${upiId})` : "Cash on Delivery", shippingAddress);
   };
 
   const field = (key: keyof typeof form, label: string, type = "text", maxLength = 100) => (
