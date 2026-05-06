@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { api } from "./api";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -61,7 +62,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   phone: string;
   address: string;
   createdAt: string;
@@ -123,14 +124,25 @@ export const SIZES = ["S", "M", "L", "XL"] as const;
 
 export function useAdmin() {
   const [admin, setAdmin] = useLocalState<boolean>("myntra:admin", false);
-  return {
-    admin,
-    loginAdmin: (u: string, p: string) => {
-      if (u === "admin" && p === "admin123") { setAdmin(true); return true; }
+  const [adminToken, setAdminToken] = useLocalState<string | null>("myntra:adminToken", null);
+
+  const loginAdmin = async (email: string, password: string) => {
+    try {
+      const response = await api.adminLogin({ email, password });
+      setAdmin(true);
+      setAdminToken(response.token);
+      return true;
+    } catch {
       return false;
-    },
-    logoutAdmin: () => setAdmin(false),
+    }
   };
+
+  const logoutAdmin = () => {
+    setAdmin(false);
+    setAdminToken(null);
+  };
+
+  return { admin, adminToken, loginAdmin, logoutAdmin };
 }
 
 export function useWishlist() {
@@ -143,9 +155,20 @@ export function useWishlist() {
 
 export function useUsers() {
   const [rawUsers, setRawUsers] = useLocalState<User[]>("myntra:users", []);
+  const [adminToken] = useLocalState<string | null>("myntra:adminToken", null);
+
+  useEffect(() => {
+    if (!adminToken) return;
+    api.getUsers(adminToken)
+      .then((users) => setRawUsers(users))
+      .catch(() => {
+        /* ignore failed admin fetch */
+      });
+  }, [adminToken]);
+
   const users = useMemo(() => {
     const seen = new Set<string>();
-    return rawUsers.filter(user => {
+    return rawUsers.filter((user) => {
       const email = user.email.toLowerCase();
       if (seen.has(email)) return false;
       seen.add(email);
@@ -154,10 +177,6 @@ export function useUsers() {
   }, [rawUsers]);
 
   const findUserByEmail = (email: string) => rawUsers.find((user) => user.email.toLowerCase() === email.toLowerCase());
-  const authenticateUser = (email: string, password: string) => {
-    const user = findUserByEmail(email);
-    return user && user.password === password ? user : null;
-  };
 
   const addUser = (userData: Omit<User, "id" | "createdAt">) => {
     const existing = findUserByEmail(userData.email);
@@ -179,45 +198,98 @@ export function useUsers() {
     setRawUsers((prev) => prev.map((user) => (user.id === updated.id ? updated : user)));
   };
 
-  const deleteUser = (id: string) => {
+  const deleteUser = async (id: string) => {
+    if (adminToken) {
+      try {
+        await api.deleteUser(id, adminToken);
+      } catch {
+        // ignore backend delete failure and still remove locally
+      }
+    }
     setRawUsers((prev) => prev.filter((user) => user.id !== id));
   };
 
-  return { users, findUserByEmail, authenticateUser, addUser, updateUser, deleteUser };
+  return { users, findUserByEmail, addUser, updateUser, deleteUser };
 }
 
 export function useAuth() {
-  const { addUser, updateUser, findUserByEmail, authenticateUser } = useUsers();
   const [user, setUser] = useLocalState<User | null>("myntra:user", null);
+  const [token, setToken] = useLocalState<string | null>("myntra:token", null);
 
-  const login = (email: string, password: string) => {
-    const existing = authenticateUser(email, password);
-    if (!existing) return null;
-    setUser(existing);
-    return existing;
-  };
+  useEffect(() => {
+    if (!token || user) return;
+    let cancelled = false;
+    api.getProfile(token)
+      .then((profile) => {
+        if (!cancelled) setUser(profile);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setUser(null);
+          setToken(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, user, setToken]);
 
-  const signup = (userData: Omit<User, 'id' | 'createdAt'>) => {
-    const existing = findUserByEmail(userData.email);
-    if (existing) return null;
-    const nextUser = addUser(userData);
-    setUser(nextUser);
-    return nextUser;
-  };
-
-  const logout = () => setUser(null);
-  const updateProfile = (updates: Partial<Omit<User, 'id' | 'createdAt'>>) => {
-    if (user) {
-      const nextUser = { ...user, ...updates };
-      setUser(nextUser);
-      updateUser(nextUser);
+  const login = async (email: string, password: string) => {
+    try {
+      const result = await api.login({ email, password });
+      setToken(result.token);
+      setUser(result.user);
+      return result.user;
+    } catch {
+      return null;
     }
   };
-  return { user, login, signup, logout, updateProfile };
+
+  const signup = async (userData: Omit<User, 'id' | 'createdAt'>) => {
+    try {
+      const result = await api.signup(userData as any);
+      setToken(result.token);
+      setUser(result.user);
+      return result.user;
+    } catch {
+      return null;
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+  };
+
+  const updateProfile = async (updates: Partial<Omit<User, 'id' | 'createdAt'>>) => {
+    if (!token || !user) return;
+    try {
+      const nextUser = await api.updateProfile(updates, token);
+      setUser(nextUser);
+      return nextUser;
+    } catch {
+      return null;
+    }
+  };
+
+  return { user, token, login, signup, logout, updateProfile };
 }
 
 export function useOrders() {
   const [rawOrders, setRawOrders] = useLocalState<Order[]>("myntra:orders", []);
+  const [token] = useLocalState<string | null>("myntra:token", null);
+  const [adminToken] = useLocalState<string | null>("myntra:adminToken", null);
+  const authToken = adminToken || token;
+
+  useEffect(() => {
+    if (!authToken) return;
+    api.getOrders(authToken)
+      .then((orders) => setRawOrders(orders as Order[]))
+      .catch(() => {
+        /* ignore failed order refresh */
+      });
+  }, [authToken]);
+
   const orders = useMemo(() => {
     const seen = new Set<string>();
     return rawOrders.filter(order => {
@@ -227,21 +299,27 @@ export function useOrders() {
     });
   }, [rawOrders]);
 
-  const addOrder = (order: Omit<Order, 'id' | 'createdAt'>) => {
-    const newOrder: Order = {
-      ...order,
-      id: "ORD" + Math.floor(100000 + Math.random() * 900000),
-      createdAt: new Date().toISOString(),
-    };
-    setRawOrders(prev => [...prev, newOrder]);
+  const addOrder = async (order: Omit<Order, 'id' | 'createdAt'>) => {
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+    const newOrder = await api.createOrder(order as any, token) as Order;
+    setRawOrders(prev => [newOrder, ...prev]);
     return newOrder.id;
   };
+
   const getUserOrders = (userId: string) => orders.filter(order => order.userId === userId);
-  const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    setRawOrders(prev => prev.map(order =>
-      order.id === orderId ? { ...order, status } : order
-    ));
+
+  const updateOrderStatus = async (orderId: string, status: Order['status']) => {
+    if (!authToken) return;
+    try {
+      const updated = await api.updateOrderStatus(orderId, status, authToken) as Order;
+      setRawOrders(prev => prev.map(order => order.id === updated.id ? updated : order));
+    } catch {
+      // ignore status update failure
+    }
   };
+
   return { orders, addOrder, getUserOrders, updateOrderStatus };
 }
 

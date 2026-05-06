@@ -31,10 +31,14 @@ function ProfilePage() {
 
   const userOrders = getUserOrders(user.id);
 
-  const handleSaveProfile = () => {
-    updateProfile(editForm);
-    setEditing(false);
-    toast.success("Profile updated successfully!");
+  const handleSaveProfile = async () => {
+    const updated = await updateProfile(editForm);
+    if (updated) {
+      setEditing(false);
+      toast.success("Profile updated successfully!");
+    } else {
+      toast.error("Unable to update profile. Please try again.");
+    }
   };
 
   const getStatusColor = (status: string) => {

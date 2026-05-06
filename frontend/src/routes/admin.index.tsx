@@ -134,7 +134,7 @@ function AdminDashboard() {
                           <button
                             onClick={() => {
                               if (confirm(`Delete user ${user.name}?`)) {
-                                deleteUser(user.id);
+                                void deleteUser(user.id);
                               }
                             }}
                             className="px-2 py-1 rounded-md text-sm text-red-600 border border-red-200 hover:bg-red-50"

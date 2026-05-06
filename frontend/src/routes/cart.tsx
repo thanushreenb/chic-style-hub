@@ -90,21 +90,24 @@ function CartPage() {
         <CheckoutModal
           total={subtotal}
           onClose={() => setShowCheckout(false)}
-          onPlace={(payment, shippingAddress) => {
-            // Save order to user's order history
-            const orderId = addOrder({
-              userId: user!.id,
-              items: cart,
-              total: subtotal,
-              payment,
-              status: "placed",
-              shippingAddress,
-            });
+          onPlace={async (payment, shippingAddress) => {
+            try {
+              const orderId = await addOrder({
+                userId: user!.id,
+                items: cart,
+                total: subtotal,
+                payment,
+                status: "placed",
+                shippingAddress,
+              });
 
-            setPlaced({ id: orderId, payment });
-            clear();
-            setShowCheckout(false);
-            toast.success("Order placed successfully!");
+              setPlaced({ id: orderId, payment });
+              clear();
+              setShowCheckout(false);
+              toast.success("Order placed successfully!");
+            } catch (error) {
+              toast.error("Unable to place order. Please try again.");
+            }
           }}
         />
       )}

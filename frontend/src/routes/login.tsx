@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { useAuth, useAdmin, useUsers } from "@/lib/store";
+import { useAuth, useAdmin } from "@/lib/store";
 import { Shield, User } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -9,7 +9,6 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   const { user, login, signup } = useAuth();
-  const { findUserByEmail } = useUsers();
   const { admin, loginAdmin } = useAdmin();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"user" | "admin">("user");
@@ -28,36 +27,22 @@ function Login() {
     else if (admin) navigate({ to: "/admin" });
   }, [user, admin, navigate]);
 
-  const submitUser = (e: React.FormEvent) => {
+  const submitUser = async (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
-    const existing = findUserByEmail(normalizedEmail);
 
-    if (mode === "login") {
-      if (!normalizedEmail || password.length < 4) {
-        setErr("Email and password are required");
-        return;
-      }
-
-      if (!existing) {
-        setMode("signup");
-        setErr("No account found. Please sign up to continue.");
-        return;
-      }
-
-      const auth = login(normalizedEmail, password);
-      if (!auth) {
-        setErr("Wrong password. Please try again.");
-        return;
-      }
-
-      navigate({ to: "/" });
+    if (!normalizedEmail || password.length < 4) {
+      setErr("Email and password are required");
       return;
     }
 
-    if (existing) {
-      setMode("login");
-      setErr("Account already exists. Please login.");
+    if (mode === "login") {
+      const auth = await login(normalizedEmail, password);
+      if (!auth) {
+        setErr("Wrong email or password. Please try again.");
+        return;
+      }
+      navigate({ to: "/" });
       return;
     }
 
@@ -70,7 +55,7 @@ function Login() {
       return;
     }
 
-    const registered = signup({
+    const registered = await signup({
       name: name.trim(),
       email: normalizedEmail,
       password,
@@ -79,17 +64,17 @@ function Login() {
     });
 
     if (!registered) {
-      setMode("login");
-      setErr("Account already exists. Please login.");
+      setErr("Unable to sign up. Email may already be registered.");
       return;
     }
 
     navigate({ to: "/" });
   };
 
-  const submitAdmin = (e: React.FormEvent) => {
+  const submitAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginAdmin(adminUser, adminPass)) {
+    const success = await loginAdmin(adminUser, adminPass);
+    if (success) {
       navigate({ to: "/admin" });
     } else {
       setErr("Invalid admin credentials");
