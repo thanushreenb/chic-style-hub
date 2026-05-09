@@ -1,6 +1,6 @@
-import { useProducts } from "./store";
+import { useProducts, type Product } from "./store";
 
-export { type Product } from "./store";
+export type { Product };
 
 const img = (seed: string) =>
   `https://images.unsplash.com/${seed}?w=600&h=800&fit=crop&auto=format`;
