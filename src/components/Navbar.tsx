@@ -7,6 +7,7 @@ export function Navbar() {
   const { count } = useCart();
   const { list } = useWishlist();
   const { user, logout } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
