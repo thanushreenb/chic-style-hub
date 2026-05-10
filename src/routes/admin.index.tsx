@@ -28,7 +28,7 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    if (hydrated && !admin) navigate({ to: "/admin/login" });
+    if (hydrated && !admin) navigate({ to: "/login" });
   }, [hydrated, admin, navigate]);
 
   const filtered = useMemo(
@@ -82,7 +82,7 @@ function AdminDashboard() {
             <button
               onClick={() => {
                 logoutAdmin();
-                navigate({ to: "/admin/login" });
+                navigate({ to: "/login" });
               }}
               className="flex items-center gap-2 text-sm font-semibold text-destructive hover:opacity-80"
             >
