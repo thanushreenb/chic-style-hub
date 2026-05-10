@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as CategoryCatRouteImport } from './routes/category.$cat'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -58,6 +59,11 @@ const CategoryCatRoute = CategoryCatRouteImport.update({
   path: '/category/$cat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/login': typeof AdminLoginRoute
   '/category/$cat': typeof CategoryCatRoute
   '/admin/': typeof AdminIndexRoute
   '/profile/': typeof ProfileIndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/login': typeof AdminLoginRoute
   '/category/$cat': typeof CategoryCatRoute
   '/admin': typeof AdminIndexRoute
   '/profile': typeof ProfileIndexRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/login': typeof AdminLoginRoute
   '/category/$cat': typeof CategoryCatRoute
   '/admin/': typeof AdminIndexRoute
   '/profile/': typeof ProfileIndexRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/search'
     | '/wishlist'
+    | '/admin/login'
     | '/category/$cat'
     | '/admin/'
     | '/profile/'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/search'
     | '/wishlist'
+    | '/admin/login'
     | '/category/$cat'
     | '/admin'
     | '/profile'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/search'
     | '/wishlist'
+    | '/admin/login'
     | '/category/$cat'
     | '/admin/'
     | '/profile/'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SearchRoute: typeof SearchRoute
   WishlistRoute: typeof WishlistRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   CategoryCatRoute: typeof CategoryCatRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryCatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SearchRoute: SearchRoute,
   WishlistRoute: WishlistRoute,
+  AdminLoginRoute: AdminLoginRoute,
   CategoryCatRoute: CategoryCatRoute,
   AdminIndexRoute: AdminIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
