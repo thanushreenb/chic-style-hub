@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Search, LogOut, User } from "lucide-react";
-import { useCart, useWishlist, useAuth } from "@/lib/store";
+import { Heart, ShoppingBag, Search, LogOut, User, Sun, Moon } from "lucide-react";
+import { useCart, useWishlist, useAuth, useTheme } from "@/lib/store";
 import { useState } from "react";
 
 export function Navbar() {
