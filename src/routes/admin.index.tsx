@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useAdmin, useProducts, useOrders, useUsers } from "@/lib/store";
+import { useAdmin, useProducts, useOrders, useUsers, useTheme } from "@/lib/store";
 import { useAllProducts, CATEGORIES, type Product } from "@/lib/products";
-import { Shield, LogOut, Package, Users, ShoppingBag, TrendingUp, Plus, Edit, Trash2 } from "lucide-react";
+import { Shield, LogOut, Package, Users, ShoppingBag, TrendingUp, Plus, Edit, Trash2, Sun, Moon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
