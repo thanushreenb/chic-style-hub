@@ -71,6 +71,15 @@ function AdminDashboard() {
           <div className="flex items-center gap-4">
             <Link to="/" className="text-sm font-semibold text-muted-foreground hover:text-primary">View Store</Link>
             <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-primary"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
+            </button>
+            <button
               onClick={() => {
                 logoutAdmin();
                 navigate({ to: "/admin/login" });
