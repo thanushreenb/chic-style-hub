@@ -10,6 +10,7 @@ export const Route = createFileRoute("/admin/")({
 
 function AdminDashboard() {
   const { admin, logoutAdmin } = useAdmin();
+  const { theme, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [hydrated, setHydrated] = useState(false);
   const [filter, setFilter] = useState<string>("all");
