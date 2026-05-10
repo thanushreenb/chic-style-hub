@@ -121,6 +121,18 @@ const CLOTHING_SUBS = new Set([
 export const hasSizes = (subcategory: string) => CLOTHING_SUBS.has(subcategory);
 export const SIZES = ["S", "M", "L", "XL"] as const;
 
+export function useTheme() {
+  const [theme, setTheme] = useLocalState<"light" | "dark">("myntra:theme", "light");
+  useEffect(() => {
+    if (!isBrowser) return;
+    const root = document.documentElement;
+    if (theme === "dark") root.classList.add("dark");
+    else root.classList.remove("dark");
+  }, [theme]);
+  const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
+  return { theme, toggle, setTheme };
+}
+
 export function useAdmin() {
   const [admin, setAdmin] = useLocalState<boolean>("myntra:admin", false);
   return {

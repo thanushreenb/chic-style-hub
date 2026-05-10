@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Search, LogOut, User } from "lucide-react";
-import { useCart, useWishlist, useAuth } from "@/lib/store";
+import { Heart, ShoppingBag, Search, LogOut, User, Sun, Moon } from "lucide-react";
+import { useCart, useWishlist, useAuth, useTheme } from "@/lib/store";
 import { useState } from "react";
 
 export function Navbar() {
   const { count } = useCart();
   const { list } = useWishlist();
   const { user, logout } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -42,6 +43,15 @@ export function Navbar() {
         </form>
 
         <div className="flex items-center gap-1 md:gap-4 text-xs font-semibold">
+          <button
+            onClick={toggleTheme}
+            className="flex flex-col items-center px-2 hover:text-primary transition"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            <span className="mt-0.5 hidden sm:block">{theme === "dark" ? "Light" : "Dark"}</span>
+          </button>
           {user ? (
             <>
               <Link to="/profile" className="hidden sm:flex flex-col items-center px-2 hover:text-primary transition" title="Profile">

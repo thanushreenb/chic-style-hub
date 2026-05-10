@@ -192,7 +192,46 @@ const KIDS = build("k", "kids", {
   ],
 });
 
-export const PRODUCTS: Product[] = [...MEN, ...WOMEN, ...KIDS];
+// Expand each category up to TARGET products by cloning + varying seed items.
+const TARGET = 200;
+const VARIANTS = [
+  "Premium", "Classic", "Limited Edition", "Pro", "Essential", "Signature",
+  "Urban", "Everyday", "Luxe", "Comfort", "Trend", "Heritage", "Active",
+  "Modern", "Vintage", "Sport", "Designer", "Casual", "Festive", "Travel",
+  "Bold", "Soft Touch", "Eco", "Slim", "Relaxed",
+];
+const PRICE_DELTAS = [0, 100, -100, 200, -150, 300, -50, 250, 150, -200];
+
+function expand(base: Product[], prefix: string): Product[] {
+  if (base.length >= TARGET) return base.slice(0, TARGET);
+  const out = [...base];
+  let i = base.length;
+  let v = 0;
+  while (out.length < TARGET) {
+    const src = base[i % base.length];
+    const variant = VARIANTS[v % VARIANTS.length];
+    const delta = PRICE_DELTAS[v % PRICE_DELTAS.length];
+    const price = Math.max(199, src.price + delta);
+    const mrp = Math.max(price + 200, src.mrp + delta);
+    out.push({
+      ...src,
+      id: `${prefix}${out.length + 1}`,
+      name: `${variant} ${src.name}`,
+      price,
+      mrp,
+      fastDelivery: (out.length % 2) === 0,
+    });
+    i++;
+    v++;
+  }
+  return out;
+}
+
+const MEN_FULL = expand(MEN, "m");
+const WOMEN_FULL = expand(WOMEN, "w");
+const KIDS_FULL = expand(KIDS, "k");
+
+export const PRODUCTS: Product[] = [...MEN_FULL, ...WOMEN_FULL, ...KIDS_FULL];
 
 export const CATEGORIES = {
   men: { label: "Men", subcategories: ["Shirts", "T-Shirts", "Jeans", "Jackets", "Footwear", "Accessories"] },
