@@ -55,6 +55,9 @@ export type Product = {
   category: "men" | "women" | "kids";
   subcategory: string;
   fastDelivery?: boolean;
+  color?: string;
+  sizes?: string[];
+  rating?: number;
 };
 
 export type User = {
