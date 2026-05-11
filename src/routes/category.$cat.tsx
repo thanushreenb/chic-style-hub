@@ -42,6 +42,14 @@ function CategoryPage() {
 
   const all = useMemo(() => PRODUCTS.filter((p) => p.category === cat), [cat]);
   const allBrands = useMemo(() => Array.from(new Set(all.map((p) => p.brand))).sort(), [all]);
+  const allColors = useMemo(
+    () => Array.from(new Set(all.map((p) => p.color).filter(Boolean) as string[])).sort(),
+    [all]
+  );
+  const allSizes = useMemo(
+    () => Array.from(new Set(all.flatMap((p) => p.sizes ?? []))).sort(),
+    [all]
+  );
 
   const [sub, setSub] = useState<string>("All");
   const [sort, setSort] = useState<SortKey>("popular");
@@ -50,6 +58,9 @@ function CategoryPage() {
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [minDisc, setMinDisc] = useState(0);
   const [fastOnly, setFastOnly] = useState(false);
+  const [colors, setColors] = useState<string[]>([]);
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [minRating, setMinRating] = useState(0);
   const [mobileFilters, setMobileFilters] = useState(false);
 
   const toggle = <T,>(arr: T[], v: T) =>
@@ -66,6 +77,9 @@ function CategoryPage() {
     if (minDisc > 0)
       list = list.filter((p) => Math.round(((p.mrp - p.price) / p.mrp) * 100) >= minDisc);
     if (fastOnly) list = list.filter((p) => p.fastDelivery);
+    if (colors.length) list = list.filter((p) => p.color && colors.includes(p.color));
+    if (sizes.length) list = list.filter((p) => (p.sizes ?? []).some((s) => sizes.includes(s)));
+    if (minRating > 0) list = list.filter((p) => (p.rating ?? 0) >= minRating);
 
     const sorted = [...list];
     if (sort === "priceLow") sorted.sort((a, b) => a.price - b.price);
@@ -74,12 +88,15 @@ function CategoryPage() {
       sorted.sort((a, b) => (b.mrp - b.price) / b.mrp - (a.mrp - a.price) / a.mrp);
     else if (sort === "new") sorted.reverse();
     return sorted;
-  }, [all, sub, brands, priceIdx, minDisc, fastOnly, sort]);
+  }, [all, sub, brands, priceIdx, minDisc, fastOnly, colors, sizes, minRating, sort]);
 
   const clearAll = () => {
     setBrands([]); setPriceIdx([]); setMinDisc(0); setFastOnly(false);
+    setColors([]); setSizes([]); setMinRating(0);
   };
-  const activeCount = brands.length + priceIdx.length + (minDisc > 0 ? 1 : 0) + (fastOnly ? 1 : 0);
+  const activeCount =
+    brands.length + priceIdx.length + (minDisc > 0 ? 1 : 0) + (fastOnly ? 1 : 0) +
+    colors.length + sizes.length + (minRating > 0 ? 1 : 0);
 
   const FiltersPanel = (
     <aside className="space-y-6 text-sm">
@@ -102,7 +119,7 @@ function CategoryPage() {
       </FilterSection>
 
       <FilterSection title={`Brand (${allBrands.length})`}>
-        <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+        <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
           {allBrands.map((b) => (
             <label key={b} className="flex items-center gap-2 cursor-pointer hover:text-primary">
               <input type="checkbox" checked={brands.includes(b)} onChange={() => setBrands(toggle(brands, b))} className="accent-primary" />
@@ -119,6 +136,54 @@ function CategoryPage() {
             <span>{p.label}</span>
           </label>
         ))}
+      </FilterSection>
+
+      <FilterSection title={`Color (${allColors.length})`}>
+        <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+          {allColors.map((c) => {
+            const on = colors.includes(c);
+            return (
+              <button
+                key={c}
+                onClick={() => setColors(toggle(colors, c))}
+                className={`px-2.5 py-1 rounded-full border text-xs ${on ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary"}`}
+              >
+                {c}
+              </button>
+            );
+          })}
+        </div>
+      </FilterSection>
+
+      {allSizes.length > 0 && (
+        <FilterSection title="Size">
+          <div className="flex flex-wrap gap-1.5">
+            {allSizes.map((s) => {
+              const on = sizes.includes(s);
+              return (
+                <button
+                  key={s}
+                  onClick={() => setSizes(toggle(sizes, s))}
+                  className={`min-w-[36px] px-2 py-1 rounded border text-xs font-semibold ${on ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary"}`}
+                >
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+        </FilterSection>
+      )}
+
+      <FilterSection title="Customer Rating">
+        {[4.5, 4, 3.5, 3].map((r) => (
+          <label key={r} className="flex items-center gap-2 cursor-pointer hover:text-primary">
+            <input type="radio" name="rating" checked={minRating === r} onChange={() => setMinRating(r)} className="accent-primary" />
+            <span>{r}★ & above</span>
+          </label>
+        ))}
+        {minRating > 0 && (
+          <button onClick={() => setMinRating(0)} className="text-xs text-primary hover:underline mt-1">Clear rating</button>
+        )}
       </FilterSection>
 
       <FilterSection title="Discount Range">

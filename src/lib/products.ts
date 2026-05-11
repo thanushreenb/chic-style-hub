@@ -192,19 +192,59 @@ const KIDS = build("k", "kids", {
   ],
 });
 
+// Extra brand pool injected per category to ensure rich brand filter coverage.
+const EXTRA_BRANDS: Record<Product["category"], string[]> = {
+  men: [
+    "Allen Solly", "Louis Philippe", "Park Avenue", "Raymond", "Blackberrys", "Indian Terrain",
+    "Jack & Jones", "Celio", "John Players", "Flying Machine", "Killer", "Mufti",
+    "Pepe Jeans", "Lee", "Gap", "Marks & Spencer", "Calvin Klein", "Diesel",
+    "Reebok", "Skechers", "Bata", "Red Tape", "Woodland", "Crocs",
+    "Fastrack", "Titan", "Casio", "Daniel Wellington",
+  ],
+  women: [
+    "Biba", "W", "Aurelia", "Libas", "Global Desi", "Anouk", "Rangmanch", "Janasya",
+    "Only", "Vero Moda", "Mango", "Forever New", "ONLY", "DressBerry", "Sassafras",
+    "Tokyo Talkies", "Harpa", "Latin Quarters", "Chemistry", "AND",
+    "Hidesign", "Caprese", "Baggit", "Da Milano",
+    "Rocia", "Bata", "Inc.5", "Carlton London",
+    "Swarovski", "Pipa Bella", "Zaveri Pearls",
+  ],
+  kids: [
+    "Mothercare", "Carter's", "H&M Kids", "Gap Kids", "Zara Kids", "Babyhug",
+    "Cherry Crumble", "Allen Solly Junior", "U.S. Polo Kids", "Pantaloons Junior",
+    "Nauti Nati", "612 League", "Gini & Jony", "Max Kids",
+    "Funskool", "Hamleys", "Lego", "Barbie", "Hot Wheels", "Fisher-Price",
+    "Disney", "Marvel", "Mattel", "Chicco",
+    "Nike Kids", "Adidas Kids", "Puma Kids", "Reebok Kids", "Skechers Kids",
+  ],
+};
+
+const COLORS = ["Black", "White", "Blue", "Red", "Green", "Yellow", "Pink", "Grey", "Brown", "Beige", "Navy", "Maroon", "Olive", "Purple", "Orange"];
+const RATINGS = [3.5, 3.8, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8];
+const SIZE_PRESET = ["S", "M", "L", "XL"];
+const FOOTWEAR_SIZES = ["6", "7", "8", "9", "10", "11"];
+
 // Expand each category up to TARGET products by cloning + varying seed items.
-const TARGET = 200;
+const TARGET = 400;
 const VARIANTS = [
   "Premium", "Classic", "Limited Edition", "Pro", "Essential", "Signature",
   "Urban", "Everyday", "Luxe", "Comfort", "Trend", "Heritage", "Active",
   "Modern", "Vintage", "Sport", "Designer", "Casual", "Festive", "Travel",
-  "Bold", "Soft Touch", "Eco", "Slim", "Relaxed",
+  "Bold", "Soft Touch", "Eco", "Slim", "Relaxed", "Street", "Athleisure",
+  "Weekend", "Office", "Party", "Summer", "Winter", "Monsoon", "Resort",
 ];
-const PRICE_DELTAS = [0, 100, -100, 200, -150, 300, -50, 250, 150, -200];
+const PRICE_DELTAS = [0, 100, -100, 200, -150, 300, -50, 250, 150, -200, 400, -250, 500, 350];
 
-function expand(base: Product[], prefix: string): Product[] {
-  if (base.length >= TARGET) return base.slice(0, TARGET);
-  const out = [...base];
+function expand(base: Product[], prefix: string, cat: Product["category"]): Product[] {
+  const extras = EXTRA_BRANDS[cat];
+  // First, attach color/rating/sizes to base items deterministically.
+  const enrich = (p: Product, idx: number): Product => ({
+    ...p,
+    color: p.color ?? COLORS[idx % COLORS.length],
+    rating: p.rating ?? RATINGS[idx % RATINGS.length],
+    sizes: p.sizes ?? (p.subcategory === "Footwear" ? FOOTWEAR_SIZES : SIZE_PRESET),
+  });
+  const out: Product[] = base.map(enrich);
   let i = base.length;
   let v = 0;
   while (out.length < TARGET) {
@@ -213,23 +253,30 @@ function expand(base: Product[], prefix: string): Product[] {
     const delta = PRICE_DELTAS[v % PRICE_DELTAS.length];
     const price = Math.max(199, src.price + delta);
     const mrp = Math.max(price + 200, src.mrp + delta);
-    out.push({
-      ...src,
-      id: `${prefix}${out.length + 1}`,
-      name: `${variant} ${src.name}`,
-      price,
-      mrp,
-      fastDelivery: (out.length % 2) === 0,
-    });
+    const brand = v % 2 === 0 ? extras[v % extras.length] : src.brand;
+    out.push(
+      enrich(
+        {
+          ...src,
+          id: `${prefix}${out.length + 1}`,
+          name: `${variant} ${src.name}`,
+          brand,
+          price,
+          mrp,
+          fastDelivery: out.length % 2 === 0,
+        },
+        out.length
+      )
+    );
     i++;
     v++;
   }
   return out;
 }
 
-const MEN_FULL = expand(MEN, "m");
-const WOMEN_FULL = expand(WOMEN, "w");
-const KIDS_FULL = expand(KIDS, "k");
+const MEN_FULL = expand(MEN, "m", "men");
+const WOMEN_FULL = expand(WOMEN, "w", "women");
+const KIDS_FULL = expand(KIDS, "k", "kids");
 
 export const PRODUCTS: Product[] = [...MEN_FULL, ...WOMEN_FULL, ...KIDS_FULL];
 
