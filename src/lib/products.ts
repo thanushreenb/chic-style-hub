@@ -265,15 +265,17 @@ function expand(base: Product[], prefix: string, cat: Product["category"]): Prod
     const price = Math.max(199, src.price + delta);
     const mrp = Math.max(price + 200, src.mrp + delta);
     const brand = v % 2 === 0 ? extras[v % extras.length] : src.brand;
+    const newId = `${prefix}${out.length + 1}`;
     out.push(
       enrich(
         {
           ...src,
-          id: `${prefix}${out.length + 1}`,
+          id: newId,
           name: `${variant} ${src.name}`,
           brand,
           price,
           mrp,
+          image: uniqueImg(`${prefix}-${newId}-${variant}`),
           fastDelivery: out.length % 2 === 0,
         },
         out.length
@@ -282,6 +284,8 @@ function expand(base: Product[], prefix: string, cat: Product["category"]): Prod
     i++;
     v++;
   }
+  return out;
+}
   return out;
 }
 
