@@ -235,15 +235,26 @@ const VARIANTS = [
 ];
 const PRICE_DELTAS = [0, 100, -100, 200, -150, 300, -50, 250, 150, -200, 400, -250, 500, 350];
 
+// Generate a guaranteed-unique image per product using picsum seeded URLs.
+const uniqueImg = (key: string) =>
+  `https://picsum.photos/seed/${encodeURIComponent(key)}/600/800`;
+
 function expand(base: Product[], prefix: string, cat: Product["category"]): Product[] {
   const extras = EXTRA_BRANDS[cat];
-  // First, attach color/rating/sizes to base items deterministically.
-  const enrich = (p: Product, idx: number): Product => ({
-    ...p,
-    color: p.color ?? COLORS[idx % COLORS.length],
-    rating: p.rating ?? RATINGS[idx % RATINGS.length],
-    sizes: p.sizes ?? (p.subcategory === "Footwear" ? FOOTWEAR_SIZES : SIZE_PRESET),
-  });
+  const seenImages = new Set<string>();
+  // First, attach color/rating/sizes to base items deterministically; dedupe images.
+  const enrich = (p: Product, idx: number): Product => {
+    let image = p.image;
+    if (seenImages.has(image)) image = uniqueImg(`${prefix}-${p.id}-${idx}`);
+    seenImages.add(image);
+    return {
+      ...p,
+      image,
+      color: p.color ?? COLORS[idx % COLORS.length],
+      rating: p.rating ?? RATINGS[idx % RATINGS.length],
+      sizes: p.sizes ?? (p.subcategory === "Footwear" ? FOOTWEAR_SIZES : SIZE_PRESET),
+    };
+  };
   const out: Product[] = base.map(enrich);
   let i = base.length;
   let v = 0;
