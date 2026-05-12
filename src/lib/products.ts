@@ -286,8 +286,6 @@ function expand(base: Product[], prefix: string, cat: Product["category"]): Prod
   }
   return out;
 }
-  return out;
-}
 
 const MEN_FULL = expand(MEN, "m", "men");
 const WOMEN_FULL = expand(WOMEN, "w", "women");
