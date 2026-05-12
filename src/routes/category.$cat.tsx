@@ -215,7 +215,7 @@ function CategoryPage() {
         <p className="text-xs text-muted-foreground mt-1">{filtered.length} products</p>
 
         <div className="grid md:grid-cols-[240px_1fr] gap-6 mt-6">
-          <div className="hidden md:block bg-card border border-border rounded-xl p-4 h-fit sticky top-20">
+          <div className="hidden md:block bg-card border border-border rounded-xl p-4 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
             {FiltersPanel}
           </div>
 
